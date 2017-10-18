@@ -21,8 +21,9 @@ static uint8 ccd_uart_makecrc(uint8 *data, uint8 length)
 //读取一帧数据的头部并校验
 EG_RETURN com_uart_head_check(uint8 *p_head,int len)
 {
+		
 		EG_RETURN ret = EG_FAIL;
-		if ((len == 1) && (p_head[1] == 0xAA)){
+		if ((len == 1) && (p_head[0] == 0xAA)){
 			ret = EG_OK;	
 		}
 		return ret;
@@ -54,10 +55,13 @@ int com_uart_long_check(uint8 *p_long,int len)
 EG_RETURN com_uart_mess_process(uint8 *p_mess,int len)
 {
 	EG_RETURN ret = EG_FAIL;
+	
+	ccd_uart_mess_hex(p_mess,len);
 	//1 check crc
 	uint8 crc =  ccd_uart_makecrc(&p_mess[1],len-2);
 	if(crc !=p_mess[len-1])
 	{
+		EG_P("com_uart_mess_process error\r\n");
 		return EG_ERROR;	
 	}
 
@@ -84,6 +88,7 @@ EG_RETURN com_uart_mess_process(uint8 *p_mess,int len)
 //05 process
 static uint8 Process_ReadDeviceQosResponseCB(uint8 *f_uart ,int len)
 { 
+    ccd_uart_mess_hex(f_uart,len);
 	return EG_OK;
 }
 
@@ -91,6 +96,7 @@ static uint8 Process_ReadDeviceQosResponseCB(uint8 *f_uart ,int len)
 static uint8 Process_readDeviceUuidResponseCB(uint8 *f_uart,int len )
 { 
 	//store uuid 
+	ccd_uart_mess_hex(f_uart,len);
 	return EG_OK;
 }
 

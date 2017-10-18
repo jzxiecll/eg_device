@@ -9,7 +9,7 @@ extern "C" {
 #include "hal.h"
 #include "hal_uart.h"
 #include "platform_os.h"
-
+#include "eg_log.h"
 
 
 

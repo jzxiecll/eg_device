@@ -14,6 +14,7 @@ extern "C" {
 #include "semphr.h"
 #include "timers.h"
 
+#include "eg_log.h"
 typedef xTaskHandle eg_thread_t;
 typedef void *eg_thread_arg_t;
 typedef struct eg_thread_stack {

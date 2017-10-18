@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "device_hal.h"
+
 
 #define CONFIG_UART_RECIVE_ARRAY_MAX  100
 #define CONFIG_UART_SEND_ARRAY_MAX  100
@@ -100,6 +100,7 @@ uint8 eg_uart_mess_upload(uint8 *f_uart,int len);
 uint8 eg_uart_mess_downctrl(uint8 *f_uart,int len);
 uint8 eg_register_uart_cmd_func_cb(uint8 commandID, UartPacketProcessCB func);
 UartPacketProcessCB eg_get_uart_cmd_func_cb(uint8 commandID);
+void eg_clear_uart_cmd_func_cb();
 
 int eg_uart_brige_init();
 EG_RETURN eg_uart_brige_start();

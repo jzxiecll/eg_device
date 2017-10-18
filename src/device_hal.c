@@ -9,6 +9,19 @@ static SemaphoreHandle_t mutex_tx, mutex_rx;
 static char rx_vfifo_buffer[512] __attribute__ ((section(".noncached_zidata")));
 static char tx_vfifo_buffer[512] __attribute__ ((section(".noncached_zidata")));
 
+void uart_send_mess_hex(uint8_t *f_uart,int len)
+{
+		int i = 0;
+		eg_log_debug("send uart frame :");
+		for(i=0;i<len;i++)
+		{
+			EG_P("%02X ", f_uart[i]);
+		}
+		EG_P("\r\n");
+}
+
+
+
 static void user_uart_callback(hal_uart_callback_event_t status, void *user_data)
 {
     BaseType_t xHigherPriorityTaskWoken;
@@ -245,6 +258,7 @@ static bool eg_uart_write(uint8_t *buf, uint32_t len)
  
   bool eg_device_write(uint8_t *buf, uint32_t len)
  {		 
-		return eg_uart_write(buf,  len);
+ 		uart_send_mess_hex(buf,len);
+		return eg_uart_write(buf,len);
  }
 

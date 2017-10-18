@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include <wmstdio.h>
+//#include <wmstdio.h>
 
 
 #ifdef __cplusplus
@@ -15,11 +15,13 @@ extern "C"
 {
 #endif
 
-#define eg_log_printf wmprintf
-#define eg_log_fflush wmstdio_flush
+
 
 
 #define EG_LOG_LEVEL  EG_LOG_LEVEL_DEBUG
+
+#define eg_log_printf printf
+#define eg_log_fflush fflush
 #define EG_P       eg_log_printf
 
 #define EG_LOG_LEVEL_FATAL      (0)

@@ -1,4 +1,5 @@
 #include "platform_os.h"
+#include "device_hal.h"
 #include "device.h"
 
 static UartCommandProcessCB g_uartCommands[CONFIG_MAX_UART_COMMANDS_COUNT];
@@ -16,12 +17,13 @@ void ccd_uart_mess_hex(uint8 *f_uart,int len)
 		eg_log_debug("uart frame :");
 		for(i=0;i<len;i++)
 		{
-			eg_log_debug("%02X ", f_uart[i]);
+			EG_P("%02X ", f_uart[i]);
 		}
-		eg_log_debug("\r\n");
+		EG_P("\r\n");
 }
 
-static void eg_clear_uart_cmd_func_cb()
+
+void eg_clear_uart_cmd_func_cb()
 {
 	uint8 i = 0;
 	for (i = 0; i < CONFIG_MAX_UART_COMMANDS_COUNT; i++)
@@ -189,7 +191,7 @@ int relase_uart_frame(char *buffer,uart_frame *u_frame)
 {
 
 	int r_len=0;
-	eg_memcpy(u_frame->frame,buffer,u_frame->f_len);
+	eg_memcpy(buffer,u_frame->frame,u_frame->f_len);
 	r_len = u_frame->f_len;
 	return r_len;
 }
@@ -211,27 +213,36 @@ static int common_uart_read_msg(int u_headLenth,int u_lenglenth)
 	eg_memset(g_uart_recvData,0,sizeof(g_uart_recvData));
 	int len = 0;
 	int alreadyReadCnt = 0;
-	unsigned char *headArray = g_uart_recvData[0];
-	unsigned char *lengArray = (unsigned char *)g_uart_recvData[u_headLenth];
-	unsigned char *messArray = (unsigned char *)(g_uart_recvData[u_headLenth+u_lenglenth]);
+	unsigned char *headArray = (unsigned char *)g_uart_recvData;
+	unsigned char *lengArray = (unsigned char *)(g_uart_recvData+u_headLenth);
+	unsigned char *messArray = (unsigned char *)(g_uart_recvData+u_headLenth+u_lenglenth);
 	unsigned char messageContentLength = 0x00;
 	int dataLen = 0;
 	unsigned char crc = 0;
 
+	unsigned char byte_recv = 0;
 	while(1)
 	{
+
+#if 1	
 			switch(receiveStatus)
 			{
 
 					case EG_UART_MSG_HEAD:
 					{
-						alreadyReadCnt = eg_device_read((unsigned char *)&headArray, u_headLenth);
+						alreadyReadCnt = eg_device_read((uint8*)headArray + len, u_headLenth- len);
 						len += alreadyReadCnt;
 						if (len == u_headLenth)
 						{
-							len = 0;	
+							len = 0;
 							if(com_uart_head_check(headArray,u_headLenth)==EG_OK)
-									receiveStatus = EG_UART_MSG_LENGTH;
+							{
+								receiveStatus = EG_UART_MSG_LENGTH;
+							}
+							else{
+								eg_memset(g_uart_recvData,0,sizeof(g_uart_recvData));
+							}
+					
 						}
 						break;
 					}
@@ -270,8 +281,13 @@ static int common_uart_read_msg(int u_headLenth,int u_lenglenth)
 						break;
 					}
 			}
-
-			eg_thread_sleep(eg_msec_to_ticks(10));
+#else
+			
+		   	if(eg_device_read((unsigned char *)&byte_recv, 1)==1)
+				EG_P("%02x:  ",byte_recv);
+					
+#endif
+			eg_thread_sleep(eg_msec_to_ticks(100));
 		}
 }
 
@@ -289,6 +305,7 @@ static void eg_uart_send_thread()
 
 	char buffer[CONFIG_UART_SEND_ARRAY_MAX];
 	int len;
+	bool ret = false;
 	uart_frame *uart_frame=NULL;
 	while(1)
 	{
@@ -297,10 +314,16 @@ static void eg_uart_send_thread()
 		eg_memset(buffer,0,sizeof(buffer));
 		if(eg_queue_pop(g_iot_product.i_device.i_brige->s_queue,(void**)&uart_frame)==EG_OK)
 		{
-			len = relase_uart_frame(buffer,uart_frame);
-			eg_device_write(buffer,len);
+			
+			len = relase_uart_frame(buffer,uart_frame);	
+			ret = eg_device_write(buffer,len);
+			if(ret==true)
+				eg_log_debug("send a uart frame success!");
+			else
+				eg_log_debug("send a uart frame failed!");
 		}
 		free_uart_frame(uart_frame);
+		eg_thread_sleep(eg_msec_to_ticks(1000));
 	}
 
 }
@@ -327,21 +350,27 @@ EG_RETURN eg_uart_brige_start()
 	ret1 = eg_thread_create(&UARTReceiveThread_thread,
 		"eg_uart_recv_thread",
 		(void *)eg_uart_recv_thread, 0,
-		&UARTReceiveThread_stack, 3);
+		&UARTReceiveThread_stack, 1);
 
-	if (ret1)
+	if (ret1!=0){
 		eg_log_error("unable to create UARTReceiveThread.\r\n");
+	}
+	else{
+		printf(" create UARTReceiveThread success1 \r\n");
+	}
 
 	ret2 = eg_thread_create(&UARTSendThread_thread,
 		"eg_uart_send_thread",
 		(void *)eg_uart_send_thread, 0,
-		&UARTSendThread_stack, 3);
+		&UARTSendThread_stack, 1);
 
-	if (ret2)
+	if (ret2!=0){		
 		eg_log_error(" unable to create UARTSendThread.\r\n");
+	}else{
+		printf(" create UARTSendThread success2 \r\n");
+	}
 
-
-	return ((ret1+ret2)==0)?0:1;
+	return ret1|ret2;
 }
 
 EG_RETURN eg_uart_brige_stop()
@@ -384,7 +413,11 @@ uint8 eg_uart_mess_downctrl(uint8 *f_uart,int len)
 		{
 			eg_log_debug("s_queue push failed");
 			free_uart_frame(u_frame);
+			return EG_FAIL;
 		}
+	}else
+	{
+		return EG_FAIL;
 	}
 	return EG_OK;
 }
