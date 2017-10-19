@@ -198,9 +198,9 @@ int relase_uart_frame(char *buffer,uart_frame *u_frame)
 
 void free_uart_frame(uart_frame *u_frame)
 {
-	if(!u_frame)
+	if(u_frame)
 	{
-		if(!u_frame->frame)
+		if(u_frame->frame)
 			eg_mem_free(u_frame->frame);
 		eg_mem_free(u_frame);
 		u_frame = NULL;
