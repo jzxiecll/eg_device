@@ -1,4 +1,3 @@
-
 #include "platform_os.h"
 #include "device.h"
 #include "ccd_device.h"
@@ -118,8 +117,7 @@ uint8 Process_DeviceGetWifiModulePropertyRequestCB(uint8 *f_uart,int len){return
 void com_regis_uart_cmd_func_cb()
 {
   eg_clear_uart_cmd_func_cb();
-
-  
+ 
   eg_register_uart_cmd_func_cb(UART2WIFICOMMANDS_READ_QOS_RESPONSE, Process_ReadDeviceQosResponseCB);
   eg_register_uart_cmd_func_cb(UART2WIFICOMMANDS_READ_DEVICESN_RESPONSE, Process_readDeviceUuidResponseCB);
 #if 0  

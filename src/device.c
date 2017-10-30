@@ -14,7 +14,7 @@ static eg_thread_stack_define(UARTSendThread_stack, 2048);
 void ccd_uart_mess_hex(uint8 *f_uart,int len)
 {
 		int i = 0;
-		eg_log_debug("uart frame :");
+		EG_P("uart frame :");
 		for(i=0;i<len;i++)
 		{
 			EG_P("%02X ", f_uart[i]);
@@ -287,7 +287,7 @@ static int common_uart_read_msg(int u_headLenth,int u_lenglenth)
 				EG_P("%02x:  ",byte_recv);
 					
 #endif
-			eg_thread_sleep(eg_msec_to_ticks(100));
+			eg_thread_sleep(eg_msec_to_ticks(10));
 		}
 }
 

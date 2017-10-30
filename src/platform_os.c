@@ -4,7 +4,7 @@
 void* eg_mem_alloc(int sz)
 {  
     void *buf = NULL;
-    buf = pvPortMalloc(sz);
+    buf = eg_memalloc(sz);
     if(NULL == buf)
         eg_log_debug("failed eg_mem_malloc! size:%d\r\n", sz);
     return buf;
@@ -13,7 +13,7 @@ void* eg_mem_alloc(int sz)
 void eg_mem_free(void *ptr)
 {   
     if(ptr)
-        vPortFree(ptr);
+        eg_memfree(ptr);
 }
  
  void eg_thread_sleep(int ticks)

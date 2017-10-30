@@ -28,9 +28,10 @@ typedef struct eg_thread_stack {
 #define egPASS			( egTRUE )
 #define egFAIL			( egFALSE )
 
-
 #define eg_memcpy  memcpy
 #define eg_memset  memset
+#define eg_memalloc pvPortMalloc
+#define eg_memfree  vPortFree
 
 
 #define eg_thread_stack_define(stackname, stacksize)		\

@@ -12,7 +12,7 @@ static char tx_vfifo_buffer[512] __attribute__ ((section(".noncached_zidata")));
 void uart_send_mess_hex(uint8_t *f_uart,int len)
 {
 		int i = 0;
-		eg_log_debug("send uart frame :");
+		EG_P("send uart frame :");
 		for(i=0;i<len;i++)
 		{
 			EG_P("%02X ", f_uart[i]);
@@ -258,7 +258,7 @@ static bool eg_uart_write(uint8_t *buf, uint32_t len)
  
   bool eg_device_write(uint8_t *buf, uint32_t len)
  {		 
- 		uart_send_mess_hex(buf,len);
+ 		//uart_send_mess_hex(buf,len);
 		return eg_uart_write(buf,len);
  }
 

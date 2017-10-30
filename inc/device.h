@@ -32,6 +32,10 @@ typedef struct {
 	char rountStatus;
 	char cloudStatus;
     char deviceStatus;
+	char wifisignalintensity;
+	char cloudplatform;
+	char wificonfigmode;
+	char module;
 }iot_wifi;
 
 /****************************************************/
